@@ -44,3 +44,42 @@ TEST(Graph, vector_vertex) {
 	for (int i = 0; i < vector.size(); ++i)
 		cout << vector[i] << " ";
 }
+
+TEST(Graph, add_edge) {
+	Graph<int, double> my_graph;
+	EXPECT_TRUE(my_graph.add_edge(0, 1, 10) == true);
+	EXPECT_TRUE(my_graph.add_edge(0, 1, 5) == true);
+	EXPECT_TRUE(my_graph.add_edge(0, 2, 15) == true);
+	EXPECT_TRUE(my_graph.add_edge(0, 1, 10) == false);
+}
+
+TEST(Graph, remove_edge) {
+	Graph<int, double> my_graph;
+	Graph<int, double>::Edge my_edge = Graph<int, double>::Edge(3, 2, 30);
+	Graph<int, double>::Edge my_edge_two = Graph<int, double>::Edge(3, 2, 8);
+	my_graph.add_edge(0, 1, 10);
+	my_graph.add_edge(2, 1, 5);
+	my_graph.add_edge(3, 2, 15);
+	my_graph.add_edge(3, 2, 30);
+	EXPECT_TRUE(my_graph.remove_edge(0, 1) == true);
+	EXPECT_TRUE(my_graph.remove_edge(2, 1) == true);
+	EXPECT_TRUE(my_graph.remove_edge(0, 1) == false);
+	EXPECT_TRUE(my_graph.remove_edge(my_edge) == true);
+	EXPECT_TRUE(my_graph.remove_edge(my_edge_two) == false);
+	std::vector<Graph<int, double>::Edge> vector = my_graph.edges(0);
+	for (int i = 0; i < vector.size(); ++i)
+		cout << "(" << vector[i].from << "," << vector[i].to << "," << vector[i].distance << ")" << " ";
+
+}
+
+TEST(Graph, vector_edge) {
+	Graph<int, double> my_graph;
+	my_graph.add_edge(0, 1, 10);
+	my_graph.add_edge(2, 1, 5);
+	my_graph.add_edge(3, 2, 15);
+	my_graph.add_edge(3, 2, 30);
+
+	std::vector<Graph<int, double>::Edge> vector = my_graph.edges(3);
+	for (int i = 0; i < vector.size(); ++i)
+		cout << "("<<vector[i].from<<","<< vector[i].to<< "," << vector[i].distance << ")"<<" ";
+}

@@ -58,15 +58,79 @@ public:
     }
 
     //проверка-добавление-удаление ребер
-    void add_edge(const Vertex& from, const Vertex& to,
-        const Distance& d);
-    bool remove_edge(const Vertex& from, const Vertex& to);
-    bool remove_edge(const Edge& e); //c учетом расстояния
-    bool has_edge(const Vertex& from, const Vertex& to) const;
-    bool has_edge(const Edge& e) const; //c учетом расстояния в Edge
+    bool add_edge(const Vertex& from, const Vertex& to,
+        const Distance& d) {
+        Edge new_edge(from, to, d);
+        if (has_edge(new_edge))
+            return false;
+        if (!has_vertex(from))
+            _vertices.insert(from);
+        if (!has_vertex(to))
+            _vertices.insert(to);
+        _edge[from].push_back(new_edge);
+        return true;
+    };
+
+    bool remove_edge(const Vertex& from, const Vertex& to) {
+        if (!has_edge(from, to))
+            return false;
+        auto& list = _edge[from];
+        for (auto it=list.begin(); it != list.end(); ++it) {
+            if (it->to == to) {
+                list.erase(it);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    bool remove_edge(const Edge& e) {
+        if (!has_edge(e))
+            return false;
+        auto& list = _edge[e.from];
+        for (auto it = list.begin(); it != list.end(); ++it) {
+            if (it->to == e.to && it->distance == e.distance) {
+                list.erase(it);
+                return true;
+            }
+        }
+        return false;
+    };//c учетом расстояния
+
+    bool has_edge(const Vertex& from, const Vertex& to) const {
+        auto it = _edge.find(from);
+        if (it == _edge.end())
+            return false;
+        auto& edge_list = it->second;
+        for (auto& e : edge_list) {
+            if (e.to == to)
+                return true;
+        }
+        return false;
+    };
+
+    bool has_edge(const Edge& e) const {
+        if (!has_edge(e.from, e.to))
+            return false;
+        auto it = _edge.find(e.from);
+        auto& edge_list = it->second;
+        for (auto& edge : edge_list) {
+            if (edge.to == e.to) {
+                if (e.distance == edge.distance)
+                    return true;
+            }
+        }
+        return false;
+    }; //c учетом расстояния в Edge
 
     //получение всех ребер, выходящих из вершины
-    std::vector<Edge> edges(const Vertex& vertex);
+    std::vector<Edge> edges(const Vertex& vertex) {
+        if (!has_vertex(vertex))
+            throw std::invalid_argument("not vertex!");
+        std::vector<Edge> result(_edge.at(vertex).begin(), _edge.at(vertex).end());
+
+        return result;
+    }
 
     size_t order() const; //порядок 
     size_t degree(const Vertex& v) const; //степень вершины
