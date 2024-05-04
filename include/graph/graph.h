@@ -1,5 +1,8 @@
 #pragma once
 #include <iostream>
+#include<set>
+#include<list>
+#include<unordered_map>
 
 using namespace std;
 
@@ -9,15 +12,50 @@ public:
     struct Edge {
         Vertex from, to;
         Distance distance;
-    }
-
+        Edge(Vertex from, Vertex to, Distance distance) : from(from), to(to), distance(distance) {};
+    };
+private:  
+    std::set<Vertex> _vertices;
+    std::unordered_map <Vertex, std::list<Edge>> _edge;
+public:
 
     //проверка-добавление-удаление вершин
-    bool has_vertex(const Vertex& v) const;
-    void add_vertex(const Vertex& v);
-    bool remove_vertex(const Vertex& v);
-    std::vector<Vertex> vertices() const;
+    bool has_vertex(const Vertex& v) const {
+        if (_vertices.find(v) != _vertices.end())
+            return true;
+        return false;
+    };
 
+    bool add_vertex(const Vertex& v) {
+        if (has_vertex(v))
+            return false;
+        _vertices.insert(v);
+        _edge.emplace(v, std::list<Edge>());
+        return true;
+    };
+
+    bool remove_vertex(const Vertex& v) {
+        if (!has_vertex(v))
+            return false;
+        _vertices.erase(v);
+        _edge.erase(v);
+        for (auto& ver : _vertices) {
+            auto& e = _edge[ver];
+            for(auto it = e.begin(); it != e.end(); ) {
+                if (it->to == v) {
+                    it = e.erase(it);
+                };
+                
+            };
+        }
+        return true;
+    }
+    std::vector<Vertex> vertices() const {
+        std::vector<Vertex> vertices;
+        for (auto& v : _vertices)
+            vertices.push_back(v);
+        return vertices;
+    }
 
     //проверка-добавление-удаление ребер
     void add_edge(const Vertex& from, const Vertex& to,
