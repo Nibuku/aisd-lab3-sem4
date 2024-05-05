@@ -51,6 +51,9 @@ TEST(Graph, add_edge) {
 	EXPECT_TRUE(my_graph.add_edge(0, 1, 5) == true);
 	EXPECT_TRUE(my_graph.add_edge(0, 2, 15) == true);
 	EXPECT_TRUE(my_graph.add_edge(0, 1, 10) == false);
+	std::vector<int> vector = my_graph.vertices();
+	for (int i = 0; i < vector.size(); ++i)
+		cout << vector[i] << " ";
 }
 
 TEST(Graph, remove_edge) {
@@ -82,4 +85,22 @@ TEST(Graph, vector_edge) {
 	std::vector<Graph<int, double>::Edge> vector = my_graph.edges(3);
 	for (int i = 0; i < vector.size(); ++i)
 		cout << "("<<vector[i].from<<","<< vector[i].to<< "," << vector[i].distance << ")"<<" ";
+}
+
+TEST(Graph, vector_walk) {
+	Graph<int, int> my_graph;
+	my_graph.add_edge(0, 1, 10);
+	my_graph.add_edge(2, 1, 5);
+	my_graph.add_edge(3, 2, 15);
+	my_graph.add_edge(3, 2, 30);
+	my_graph.add_edge(1, 5, 30);
+	my_graph.add_edge(4, 3, 5);
+	my_graph.add_edge(5, 6, 12);
+
+	std::vector<int> expected = { 3, 2, 1, 5, 6 }; 
+
+	std::vector<int> actual = my_graph.walk(3);
+	for (size_t i = 0; i < actual.size(); ++i) {
+		EXPECT_EQ(expected[i], actual[i]);
+	}
 }

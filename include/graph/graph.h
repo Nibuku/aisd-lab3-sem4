@@ -2,6 +2,7 @@
 #include <iostream>
 #include<set>
 #include<list>
+#include<stack>
 #include<unordered_map>
 
 using namespace std;
@@ -15,8 +16,8 @@ public:
         Edge(Vertex from, Vertex to, Distance distance) : from(from), to(to), distance(distance) {};
     };
 private:  
-    std::set<Vertex> _vertices;
-    std::unordered_map <Vertex, std::list<Edge>> _edge;
+    set<Vertex> _vertices;
+    unordered_map <Vertex, list<Edge>> _edge;
 public:
 
     //проверка-добавление-удаление вершин
@@ -30,7 +31,7 @@ public:
         if (has_vertex(v))
             return false;
         _vertices.insert(v);
-        _edge.emplace(v, std::list<Edge>());
+        _edge.emplace(v, list<Edge>());
         return true;
     };
 
@@ -125,20 +126,58 @@ public:
 
     //получение всех ребер, выходящих из вершины
     std::vector<Edge> edges(const Vertex& vertex) {
+        std::vector<Edge> edge;
         if (!has_vertex(vertex))
-            throw std::invalid_argument("not vertex!");
-        std::vector<Edge> result(_edge.at(vertex).begin(), _edge.at(vertex).end());
-
-        return result;
+            return edge;
+        for (auto& e : _edge[vertex])
+            edge.push_back(e);
+        return edge;
     }
 
-    size_t order() const; //порядок 
-    size_t degree(const Vertex& v) const; //степень вершины
+    size_t order() const {
+        return _vertices.size();
+    }; //порядок 
+
+    size_t degree(const Vertex& v) const {
+        return edges(v).size();
+    }; //степень вершины
 
 
     //поиск кратчайшего пути
     std::vector<Edge> shortest_path(const Vertex& from,
         const Vertex& to) const;
     //обход
-    std::vector<Vertex>  walk(const Vertex& start_vertex)const;
+    std::vector<Vertex> walk(const Vertex& start_vertex) const {
+        enum class Colors {
+            White,
+            Grey,
+            Black
+        };
+
+        std::vector<Vertex> vertices;
+        std::stack<Vertex> stack;
+        std::unordered_map<Vertex, Colors> color;
+        if (_vertices.find(start_vertex) == _vertices.end()) {
+            return vertices;
+        }
+        for (const auto& v : _vertices) {
+            color.emplace(v, Colors::White);
+        }
+        color[start_vertex] = Colors::Grey;
+        stack.push(start_vertex);
+        while (!stack.empty()) {
+            Vertex curr = stack.top();
+            stack.pop();
+            vertices.push_back(curr);
+            for (const auto& e : _edge.at(curr)) {
+                if (color[e.to] == Colors::White) {
+                    stack.push(e.to);
+                    color[e.to] = Colors::Grey;
+                }
+            }
+            color[curr] = Colors::Black;
+        }
+        return vertices;
+    }
+    
 };
