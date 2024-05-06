@@ -109,3 +109,20 @@ TEST(Graph, vector_walk) {
 	}
 	
 }
+
+TEST(Graph, SimplePath) {
+	Graph<int, int> my_graph;
+	my_graph.add_edge(0, 1, 10);
+	my_graph.add_edge(2, 1, 5);
+	my_graph.add_edge(3, 2, 15);
+	my_graph.add_edge(3, 2, 30);
+	my_graph.add_edge(1, 5, 30);
+	my_graph.add_edge(4, 3, 5);
+	my_graph.add_edge(5, 6, 12);
+
+
+	std::vector<Graph<int, int>::Edge> actual = my_graph.shortest_path(3,5);
+	for (int i = 0; i < actual.size(); ++i)
+		cout << "(" << actual[i].from << "," << actual[i].to << "," << actual[i].distance << ")" << " ";
+
+}

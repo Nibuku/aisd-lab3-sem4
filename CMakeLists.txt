@@ -18,7 +18,7 @@ if(MSVC)
 endif()
 
 # Объявляем библиотеку
-add_library(graph SHARED "include/graph/graph.h" "src/graph.cc" )
+add_library(graph SHARED "include/graph/graph.h" "src/task.cc" )
 target_include_directories(graph PUBLIC "include")
 
 # Подключаем googletest

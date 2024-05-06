@@ -4,11 +4,11 @@
 #include<list>
 #include<stack>
 #include<unordered_map>
-#include<unordered_set>
+#include<queue>
 
 using namespace std;
 
-template<typename Vertex, typename Distance = double>
+template<typename Vertex=int, typename Distance = double>
 class Graph {
 public:
     struct Edge {
@@ -145,15 +145,65 @@ public:
 
 
     //поиск кратчайшего пути
-    std::vector<Edge> shortest_path(const Vertex& from,
-        const Vertex& to) const;
+    std::vector<Edge> shortest_path(const Vertex& from, const Vertex& to) const {
+        if (!has_vertex(from) || !has_vertex(to)) {
+            throw std::invalid_argument("Vertex not found in the graph");
+        }
+
+        unordered_map<Vertex, Distance> min_weight;
+        for (const Vertex& v : _vertices) {
+            min_weight[v] = std::numeric_limits<Distance>::max();
+        }
+
+        priority_queue<pair<Distance, Vertex>> q;
+
+        q.push({ 0, from });
+
+        min_weight[from] = 0;
+        unordered_map<Vertex, Vertex> parent_map;
+        while (!q.empty()) {
+            pair<Distance, Vertex> temp = q.top();
+            q.pop();
+
+            Distance curr_weight = temp.first;
+            Vertex curr_vertex = temp.second;
+
+            if (curr_weight > min_weight[curr_vertex]) {
+                continue;
+            }
+            if (_edge.find(curr_vertex) == _edge.end())
+                continue;
+            for (const Edge& edge : _edge.at(curr_vertex)) {
+                Distance new_weight = curr_weight + edge.distance;
+                if (new_weight < min_weight[edge.to]) {
+                    parent_map[edge.to] = curr_vertex;
+                    min_weight[edge.to] = new_weight;
+                    q.push({ new_weight, edge.to });
+                }
+            }
+        }
+        cout << min_weight[to];
+        if (min_weight[to] == std::numeric_limits<Distance>::max()) {
+            return {};
+        }
+        std::vector<Edge> path;
+        Vertex current = to;
+        while (current != from) {
+            Vertex parent = parent_map[current];
+            Distance weight = min_weight[current] - min_weight[parent];
+            path.push_back(Edge{ parent, current, weight });
+            current = parent;
+        }
+        std::reverse(path.begin(), path.end());
+        return path;
+    }
     //обход
     std::vector<Vertex> walk(const Vertex& start_vertex) const {
         if (!has_vertex(start_vertex))
             throw std::invalid_argument("Стартовая вершина не найдена!");
         std::vector<Vertex> vertices;
         stack<Vertex> stack;
-        unordered_set<Vertex> visited_set;
+        set<Vertex> visited_set;
         stack.push(start_vertex);
         while (!stack.empty()) {
             Vertex current = stack.top();
