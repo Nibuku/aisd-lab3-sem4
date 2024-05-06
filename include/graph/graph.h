@@ -4,6 +4,7 @@
 #include<list>
 #include<stack>
 #include<unordered_map>
+#include<unordered_set>
 
 using namespace std;
 
@@ -148,36 +149,30 @@ public:
         const Vertex& to) const;
     //обход
     std::vector<Vertex> walk(const Vertex& start_vertex) const {
-        enum class Colors {
-            White,
-            Grey,
-            Black
-        };
-
+        if (!has_vertex(start_vertex))
+            throw std::invalid_argument("Стартовая вершина не найдена!");
         std::vector<Vertex> vertices;
-        std::stack<Vertex> stack;
-        std::unordered_map<Vertex, Colors> color;
-        if (_vertices.find(start_vertex) == _vertices.end()) {
-            return vertices;
-        }
-        for (const auto& v : _vertices) {
-            color.emplace(v, Colors::White);
-        }
-        color[start_vertex] = Colors::Grey;
+        stack<Vertex> stack;
+        unordered_set<Vertex> visited_set;
         stack.push(start_vertex);
         while (!stack.empty()) {
-            Vertex curr = stack.top();
+            Vertex current = stack.top();
             stack.pop();
-            vertices.push_back(curr);
-            for (const auto& e : _edge.at(curr)) {
-                if (color[e.to] == Colors::White) {
-                    stack.push(e.to);
-                    color[e.to] = Colors::Grey;
+            if (visited_set.find(current) != visited_set.end()) {
+                continue; // уже посещали эту вершину
+            }
+
+            vertices.push_back(current);
+            visited_set.insert(current);
+
+            if (_edge.find(current) != _edge.end()) {
+                for (auto& edge : _edge.at(current)) {
+                    if (visited_set.find(edge.to) == visited_set.end()) {
+                        stack.push(edge.to);
+                    }
                 }
             }
-            color[curr] = Colors::Black;
         }
         return vertices;
     }
-    
 };

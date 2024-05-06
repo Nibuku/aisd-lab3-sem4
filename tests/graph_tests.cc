@@ -81,7 +81,7 @@ TEST(Graph, vector_edge) {
 	my_graph.add_edge(2, 1, 5);
 	my_graph.add_edge(3, 2, 15);
 	my_graph.add_edge(3, 2, 30);
-
+	std::cout << __cplusplus << std::endl;
 	std::vector<Graph<int, double>::Edge> vector = my_graph.edges(3);
 	for (int i = 0; i < vector.size(); ++i)
 		cout << "("<<vector[i].from<<","<< vector[i].to<< "," << vector[i].distance << ")"<<" ";
@@ -97,10 +97,15 @@ TEST(Graph, vector_walk) {
 	my_graph.add_edge(4, 3, 5);
 	my_graph.add_edge(5, 6, 12);
 
-	std::vector<int> expected = { 3, 2, 1, 5, 6 }; 
+	std::vector<int> expected = { 3, 2, 1, 5, 6 };
 
 	std::vector<int> actual = my_graph.walk(3);
-	for (size_t i = 0; i < actual.size(); ++i) {
+	ASSERT_EQ(expected.size(), actual.size());
+	for (size_t i = 0; i < expected.size(); ++i) {
 		EXPECT_EQ(expected[i], actual[i]);
 	}
+	for (size_t i = 0; i < actual.size(); ++i) {
+		cout<< actual[i];
+	}
+	
 }
