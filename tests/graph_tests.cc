@@ -87,7 +87,7 @@ TEST(Graph, vector_edge) {
 		cout << "("<<vector[i].from<<","<< vector[i].to<< "," << vector[i].distance << ")"<<" ";
 }
 
-TEST(Graph, vector_walk) {
+TEST(Graph, walk) {
 	Graph<int, int> my_graph;
 	my_graph.add_edge(0, 1, 10);
 	my_graph.add_edge(2, 1, 5);
@@ -110,7 +110,7 @@ TEST(Graph, vector_walk) {
 	
 }
 
-TEST(Graph, SimplePath) {
+TEST(Graph, dejstra_test) {
 	Graph<int, int> my_graph;
 	my_graph.add_edge(0, 1, 10);
 	my_graph.add_edge(2, 1, 5);
@@ -124,5 +124,26 @@ TEST(Graph, SimplePath) {
 	std::vector<Graph<int, int>::Edge> actual = my_graph.shortest_path(3,5);
 	for (int i = 0; i < actual.size(); ++i)
 		cout << "(" << actual[i].from << "," << actual[i].to << "," << actual[i].distance << ")" << " ";
+
+}
+
+TEST(Graph, print_walk) {
+	Graph<int> graph;
+	graph.add_edge(1, 2, 2);
+	graph.add_edge(1, 3, 7);
+	graph.add_edge(2, 4, 8);
+	graph.add_edge(3, 5, 12);
+	graph.add_edge(3, 6, 7);
+	graph.new_print(3);
+}
+
+TEST(Graph, vector_walk) {
+	Graph<int> graph;
+	graph.add_edge(1, 2, 2);
+	graph.add_edge(1, 3, 7);
+	graph.add_edge(2, 4, 8);
+	graph.add_edge(3, 5, 12);
+	graph.add_edge(3, 6, 7);
+	graph.vector_walk(3);
 
 }

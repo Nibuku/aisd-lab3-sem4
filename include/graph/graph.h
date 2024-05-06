@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <functional>
 #include<set>
 #include<list>
 #include<stack>
@@ -209,7 +210,7 @@ public:
             Vertex current = stack.top();
             stack.pop();
             if (visited_set.find(current) != visited_set.end()) {
-                continue; // уже посещали эту вершину
+                continue;
             }
 
             vertices.push_back(current);
@@ -224,5 +225,45 @@ public:
             }
         }
         return vertices;
+    }
+
+    void walk(const Vertex& start_vertex, std::function<void(const Vertex&)> action) const {
+        if (!has_vertex(start_vertex))
+            throw std::invalid_argument("Стартовая вершина не найдена!");
+        stack<Vertex> stack;
+        set<Vertex> visited_set;
+        stack.push(start_vertex);
+        while (!stack.empty()) {
+            Vertex current = stack.top();
+            stack.pop();
+            if (visited_set.find(current) != visited_set.end()) {
+                continue;
+            }
+
+            action(current);
+            visited_set.insert(current);
+
+            if (_edge.find(current) != _edge.end()) {
+                for (auto& edge : _edge.at(current)) {
+                    if (visited_set.find(edge.to) == visited_set.end()) {
+                        stack.push(edge.to);
+                    }
+                }
+            }
+        }
+    }
+
+    void print(const Vertex& vertex) const {
+        cout << vertex << " ";
+    }
+    void new_print(const Vertex& start_vertex) {
+        std::function<void(const Vertex&)> action = [*this](const Vertex& vertex) { print(vertex); };
+        walk(start_vertex, action);
+    }
+
+    void vector_walk(const Vertex& start_vertex) {
+        std::vector<Vertex> v;
+        std::function<void(const Vertex&)> action = [this, &v](const Vertex& vertex) { v.push_back(vertex); };
+        walk(start_vertex, action);
     }
 };
