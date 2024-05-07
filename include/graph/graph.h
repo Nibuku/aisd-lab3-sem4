@@ -53,8 +53,8 @@ public:
         }
         return true;
     }
-    std::vector<Vertex> vertices() const {
-        std::vector<Vertex> vertices;
+    vector<Vertex> vertices() const {
+        vector<Vertex> vertices;
         for (auto& v : _vertices)
             vertices.push_back(v);
         return vertices;
@@ -127,12 +127,27 @@ public:
     }; //c учетом расстояния в Edge
 
     //получение всех ребер, выходящих из вершины
-    std::vector<Edge> edges(const Vertex& vertex) {
-        std::vector<Edge> edge;
+    vector<Edge> edges(const Vertex& vertex) const{
+        vector<Edge> edge;
+        if (!has_vertex(vertex))
+            return edge;
+        for (auto& e : _edge.at(vertex))
+            edge.push_back(e);
+        return edge;
+    }
+
+    vector<Edge> edges_new(const Vertex& vertex) {
+        vector<Edge> edge;
         if (!has_vertex(vertex))
             return edge;
         for (auto& e : _edge[vertex])
             edge.push_back(e);
+        for (auto& v : _vertices) {
+            for (auto& e:_edge[v]) {
+                if (e.to==vertex)
+                    edge.push_back(e);
+            }
+        }
         return edge;
     }
 
@@ -140,8 +155,8 @@ public:
         return _vertices.size();
     }; //порядок 
 
-    size_t degree(const Vertex& v) const {
-        return edges(v).size();
+    size_t degree(const Vertex& v) {
+        return edges_new(v).size();
     }; //степень вершины
 
 
@@ -187,7 +202,7 @@ public:
         if (min_weight[to] == std::numeric_limits<Distance>::max()) {
             return {};
         }
-        std::vector<Edge> path;
+        vector<Edge> path;
         Vertex current = to;
         while (current != from) {
             Vertex parent = parent_map[current];
@@ -195,14 +210,14 @@ public:
             path.push_back(Edge{ parent, current, weight });
             current = parent;
         }
-        std::reverse(path.begin(), path.end());
+        reverse(path.begin(), path.end());
         return path;
     }
     //обход
-    std::vector<Vertex> walk(const Vertex& start_vertex) const {
+    vector<Vertex> walk(const Vertex& start_vertex) const {
         if (!has_vertex(start_vertex))
             throw std::invalid_argument("Стартовая вершина не найдена!");
-        std::vector<Vertex> vertices;
+        vector<Vertex> vertices;
         stack<Vertex> stack;
         set<Vertex> visited_set;
         stack.push(start_vertex);
@@ -224,6 +239,7 @@ public:
                 }
             }
         }
+
         return vertices;
     }
 
@@ -256,14 +272,51 @@ public:
     void print(const Vertex& vertex) const {
         cout << vertex << " ";
     }
-    void new_print(const Vertex& start_vertex) {
-        std::function<void(const Vertex&)> action = [*this](const Vertex& vertex) { print(vertex); };
+    void new_print(const Vertex& start_vertex)const {
+        function<void(const Vertex&)> action = [*this](const Vertex& vertex) { print(vertex); };
         walk(start_vertex, action);
     }
 
-    void vector_walk(const Vertex& start_vertex) {
-        std::vector<Vertex> v;
-        std::function<void(const Vertex&)> action = [this, &v](const Vertex& vertex) { v.push_back(vertex); };
+    void vector_walk(const Vertex& start_vertex) const{
+        vector<Vertex> v;
+        function<void(const Vertex&)> action = [this, &v](const Vertex& vertex) { v.push_back(vertex); };
         walk(start_vertex, action);
+    }
+
+    pair<Vertex, Distance> avg_of_distance(const Vertex& vertex) {
+        if (!has_vertex(vertex))
+            return {};
+        vector <pair<Vertex, Distance>> avg;
+        vector<Vertex> vertices = walk(vertex);
+        while (vertices.size() < order()) {
+            for (auto& v : _vertices) {
+                if (find(vertices.begin(), vertices.end(), v) == vertices.end()) {
+                    vector<Vertex> additional = walk(v);
+                    vertices.insert(vertices.end(), additional.begin(), additional.end());
+                }
+            }
+        }
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            vector<Edge> edge = edges_new(vertices[i]);
+            Distance dist = 0;
+            size_t vertex_degree =degree(vertices[i]);
+            if (vertex_degree != 0) {
+                for (size_t j = 0; j < edge.size(); ++j) {
+                    dist += edge[j].distance;
+                }
+          
+                dist=dist/vertex_degree;
+
+                avg.push_back({ vertices[i], dist });
+            }
+            
+            
+        }
+        pair<Vertex, Distance> max_avg = avg[0];
+        for (size_t i = 0; i < avg.size(); ++i) {
+            if (max_avg.second < avg[i].second)
+                max_avg = avg[i];
+        }
+        return max_avg;
     }
 };
